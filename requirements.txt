@@ -1,7 +1,7 @@
-git+https://github.com/googlefonts/fontra.git
-git+https://github.com/googlefonts/fontra-compile.git
-git+https://github.com/googlefonts/fontra-rcjk.git
-git+https://github.com/googlefonts/fontra-glyphs.git
+git+https://github.com/googlefonts/fontra
+git+https://github.com/googlefonts/fontra-compile
+git+https://github.com/googlefonts/fontra-rcjk
+git+https://github.com/googlefonts/fontra-glyphs
 aiohttp==3.12.13
 pyinstaller==6.14.1
 # pin setuptools for now to avoid new pkg_resources warning
@@ -10,5 +10,5 @@ PyQt6==6.7.1
 PyQt6-Qt6==6.7.3
 PyQt6-sip==13.10.2
 # Use patched fork to work around https://github.com/matthew-brett/delocate/issues/228
-git+https://github.com/justvanrossum/delocate.git
+git+https://github.com/justvanrossum/delocate
 # delocate==0.12.0
