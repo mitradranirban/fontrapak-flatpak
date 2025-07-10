@@ -24,7 +24,11 @@ jobs:
       - name: Set up Flatpak repository
         run: |
           flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-          flatpak install -y flathub org.kde.Platform//6.5 org.kde.Sdk//6.5  # Changed to KDE runtime
+          flatpak install -y flathub org.kde.Platform//6.5 org.kde.Sdk//6.5   
+          
+      -  name: Set up Git credentials
+         run: |
+           git config --global url."https://${{ secrets.GITHUB_TOKEN }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
 
       - name: Build Flatpak
         run: |
