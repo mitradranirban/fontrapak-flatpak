@@ -54,7 +54,7 @@ modules:
       - pyinstaller FontraPak.spec -y --distpath=/app/bin
     sources:
       - type: git
-        url: https://github.com/mitradranirban/fontra-pak
+        url: https://github.com/mitradranirban/fontrapak-flatpak
 
 cleanup:
   - /include
