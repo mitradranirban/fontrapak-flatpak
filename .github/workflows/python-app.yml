@@ -1,0 +1,183 @@
+name: Build Application
+
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron: "21 1 * * 1-5"
+  workflow_dispatch: # allow manual trigger
+  # push:
+  #   branches: [ main ]
+  # pull_request:
+  #   branches: [ main ]
+
+jobs:
+  build-macos-app:
+    runs-on: macos-latest
+
+    steps:
+      - name: macOS Notarize -- Install Certificates
+        run: |
+          echo ${{ secrets.CERTIFICATE_P12 }} | base64 --decode > certificate.p12
+          security import certificate.p12 -P ${{ secrets.CERTIFICATE_PASSWORD }}
+          security create-keychain -p fgKeychain fg.keychain
+          security default-keychain -s fg.keychain
+          security set-keychain-settings -l -u -t 8000
+          security unlock-keychain -p fgKeychain fg.keychain
+          security import certificate.p12 -k fg.keychain -P ${{ secrets.CERTIFICATE_PASSWORD }} -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k fgKeychain fg.keychain
+          rm -fr *.p12
+          # security find-identity -v -p codesigning
+
+      - name: Git checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: "npm"
+
+      - name: Set up Python 3.12 for macOS
+        # We use Python from python.org instead of from actions/setup-python, as the app
+        # built with the latter does not work on macOS 10.15
+        run: |
+          curl https://www.python.org/ftp/python/3.12.7/python-3.12.7-macos11.pkg --output python-installer.pkg
+          sudo installer -pkg python-installer.pkg -target /
+          # Somehow using plain "python3" gives us the runner's homebrew Python,
+          # so let's be explicit about the path:
+          ourpython=/Library/Frameworks/Python.framework/Versions/3.12/bin/python3.12
+          ls -l $ourpython
+          $ourpython --version
+          $ourpython -c "import platform; print('platform:', platform.platform())"
+          $ourpython -c "import platform; print('macOS version:', platform.mac_ver()[0])"
+          $ourpython -m venv venv
+          source venv/bin/activate
+          python -c "import sys; print('\n'.join(sys.path))"
+
+      - name: Install dependencies
+        run: |
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt | tee pip_log.txt
+          python macos/ensure_universal_wheels.py pip_log.txt
+          pip install --force build/universal_wheels/*.whl
+          pip install -r requirements-dev.txt
+
+      - name: Run pre-commit
+        run: |
+          source venv/bin/activate
+          pre-commit run --all-files --verbose --show-diff-on-failure
+
+      - name: Build app
+        run: |
+          source venv/bin/activate
+          pyinstaller FontraPak.spec -y
+
+      - name: Run tests
+        run: |
+          source venv/bin/activate
+          pytest
+
+      - name: macOS Notarize -- Codesign and Notarize
+        run: |
+          APP_PATH="dist/Fontra Pak.app"
+          DMG_PATH="dist/FontraPak.dmg"
+
+          source venv/bin/activate
+          macos/codesign_app.sh "${{ secrets.CODESIGN_NAME }}" "$APP_PATH" macos/entitlements.plist
+          python macos/build_dmg.py "$APP_PATH" "$DMG_PATH"
+
+          codesign --sign "${{ secrets.CODESIGN_NAME }}" "$DMG_PATH"
+
+          echo "Run notarytool..."
+
+          xcrun notarytool submit \
+            --apple-id "${{ secrets.NOTARIZE_DEVELOPER }}" \
+            --team-id "${{ secrets.NOTARIZE_TEAM_ID }}" \
+            --password "${{ secrets.NOTARIZE_PASSWORD }}" \
+            --output-format json \
+            --wait \
+            $DMG_PATH \
+            | python macos/print_notarize_log.py \
+              "${{ secrets.NOTARIZE_DEVELOPER }}" \
+              "${{ secrets.NOTARIZE_TEAM_ID }}" \
+              "${{ secrets.NOTARIZE_PASSWORD }}"
+
+          xcrun stapler staple "$DMG_PATH"
+
+      - name: Storing macOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: FontraPakMacOS
+          path: ./dist/*.dmg
+
+  build-windows-exe:
+    runs-on: windows-latest
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: "npm"
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -r requirements-dev.txt
+
+      - name: Build exe
+        run: |
+          pyinstaller FontraPak.spec -y
+
+      - name: Run tests
+        run: |
+          pytest
+
+      - name: Storing Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: FontraPakWindows
+          path: ./dist/*.exe
+
+  upload-to-download-server:
+    runs-on: ubuntu-latest
+    needs: [build-macos-app, build-windows-exe]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+
+      - name: Retrieve Artifact
+        uses: actions/download-artifact@v4
+        with:
+          path: ./downloaded-artifact
+
+      - name: Zip Windows Artifact
+        run: |
+          cd ./downloaded-artifact/FontraPakWindows
+          zip -q FontraPak.zip "Fontra Pak.exe"
+
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: ./downloaded-artifact
+
+      - name: Upload Artifact
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.FONTRA_DOWNLOAD_HOST }}
+          username: ${{ secrets.FONTRA_DOWNLOAD_USERNAME }}
+          password: ${{ secrets.FONTRA_DOWNLOAD_PASSWORD }}
+          source: "./downloaded-artifact/FontraPakMacOS/FontraPak.dmg,./downloaded-artifact/FontraPakWindows/FontraPak.zip"
+          target: "/home/fontra/public-html/"
+          strip_components: 3
+          debug: true
+          overwrite: true

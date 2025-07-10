@@ -1,0 +1,38 @@
+name: Build Flatpak
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  flatpak-builder:
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:kde-6.5  # Changed to KDE 6.5 runtime
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          dnf -y install flatpak-builder
+
+      - name: Set up Flatpak repository
+        run: |
+          flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install -y flathub org.kde.Platform//6.5 org.kde.Sdk//6.5  # Changed to KDE runtime
+
+      - name: Build Flatpak
+        run: |
+          flatpak-builder --repo=repo --force-clean build-dir fontrapak.yml  
+          flatpak build-bundle repo fontra-pak.flatpak xyz.fontra.FontraPak   
+
+      - name: Upload Flatpak bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: fontra-pak-flatpak
+          path: fontra-pak.flatpak
