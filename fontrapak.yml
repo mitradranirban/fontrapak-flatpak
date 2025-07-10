@@ -10,38 +10,18 @@ finish-args:
   - --filesystem=home
   - --share=network
   - --device=dri
+
+  add-extensions:
+  org.kde.PyQt6:
+    directory: lib/python3.10/site-packages
+    add-ld-path: lib
+
 build-options:
   env:
     PYTHON_PATH: /app/lib/python3.10/site-packages
 
-modules:
-  - name: python3-PyQt6
-    buildsystem: simple
-    build-commands:
-      - pip3 install --prefix=/app PyQt6
-    cleanup:
-      - /include
-      - /lib/pkgconfig
-      - '*.la'
-      - '*.a'
 
-  - name: python3-pyinstaller
-    buildsystem: simple
-    build-commands:
-      - pip3 install --prefix=/app pyinstaller
-    cleanup:
-      - /include
-      - /lib/pkgconfig
-
-  - name: fontra-pak
-    buildsystem: simple
-    build-commands:
-      - pip3 install --prefix=/app .
-      - pyinstaller FontraPak.spec -y --distpath=/app/bin
-    sources:
-      - type: git
-        url: https://github.com/mitradranirban/fontra-pak
-        branch: flatpak-maker
+        
     modules:
       - name: python3-pip
         buildsystem: simple
@@ -67,3 +47,20 @@ cleanup:
   - /lib/python3.10/site-packages/PyInstaller/bootloader/Windows-64bit
   - /lib/python3.10/site-packages/PyInstaller/bootloader/Windows-32bit
   - /lib/python3.10/site-packages/PyInstaller/bootloader/Darwin-64bit
+modules:
+  - name: python3-pyinstaller
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app pyinstaller
+    cleanup:
+      - /include
+      - /lib/pkgconfig
+
+  - name: fontra-pak
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app .
+      - pyinstaller FontraPak.spec -y --distpath=/app/bin
+    sources:
+      - type: git
+        url: https://github.com/mitradranirban/fontra-pak
