@@ -109,10 +109,7 @@ modules:
     buildsystem: simple
     build-commands:
       - pip3 install --prefix=/app PyQt6-Qt6==6.7.3
-    sources:
-      - type: file
-        url: https://files.pythonhosted.org/packages/source/P/PyQt6-Qt6/PyQt6_Qt6-6.7.3-py3-none-manylinux_2_28_x86_64.whl
-        sha256: cb525fdd393332de60887953029276a44de480fce1d785251ae639580f5e7246
+
 
   - name: python3-pyqt6-sip
     buildsystem: simple
