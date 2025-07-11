@@ -78,55 +78,210 @@ modules:
         branch: master
 
   # PyPI dependencies
-  - name: python3-aiohttp
+  - name: python3-unicodedata2
     buildsystem: simple
     build-commands:
-      - pip3 install --prefix=/app aiohttp==3.12.13
-    sources:
-      - type: file
-        url: https://files.pythonhosted.org/packages/source/a/aiohttp/aiohttp-3.12.13.tar.gz
-        sha256: 47e2da578528264a12e4e3dd8dd72a7289e5f812758fe086473fab037a10fcce
-
-  - name: python3-setuptools
-    buildsystem: simple
-    build-commands:
-      - pip3 install --prefix=/app setuptools==80.8.0
-    sources:
-      - type: file
-        url: https://files.pythonhosted.org/packages/source/s/setuptools/setuptools-80.8.0.tar.gz
-        sha256: 49f7af965996f26d43c8ae34539c8d99c5042fbff34302ea151eaa9c207cd257
-
-  - name: python3-pyqt6
-    buildsystem: simple
-    build-commands:
-      - pip3 install --prefix=/app PyQt6==6.7.1
-    sources:
-      - type: file
-        url: https://files.pythonhosted.org/packages/source/P/PyQt6/PyQt6-6.7.1.tar.gz
-        sha256: 3672a82ccd3a62e99ab200a13903421e2928e399fda25ced98d140313ad59cb9
+      - pip3 install --prefix=/app unicodedata2
 
   - name: python3-pyqt6-qt6
     buildsystem: simple
     build-commands:
-      - pip3 install --prefix=/app PyQt6-Qt6==6.7.3
+      - pip3 install --prefix=/app PyQt6-Qt6
 
-
-  - name: python3-pyqt6-sip
+  - name: python3-pyclipper
     buildsystem: simple
     build-commands:
-      - pip3 install --prefix=/app PyQt6-sip==13.10.2
-    
-  - name: python3-pyinstaller
+      - pip3 install --prefix=/app pyclipper
+
+  - name: python3-fontc
     buildsystem: simple
     build-commands:
-      - pip3 install --prefix=/app pyinstaller==6.14.1
-    sources:
-      - type: file
-        url: https://files.pythonhosted.org/packages/source/p/pyinstaller/pyinstaller-6.14.1.tar.gz
-        sha256: 35d5c06a668e21f0122178dbf20e40fd21012dc8f6170042af6050c4e7b3edca
-    cleanup:
-      - /include
-      - /lib/pkgconfig
+      - pip3 install --prefix=/app fontc
+
+  - name: python3-brotli
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app brotli
+
+  - name: python3-appdirs
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app appdirs
+
+  - name: python3-altgraph
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app altgraph
+
+  - name: python3-zopfli
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app zopfli
+
+  - name: python3-typing-extensions
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app typing_extensions
+
+  - name: python3-sniffio
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app sniffio
+
+  - name: python3-skia-pathops
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app skia-pathops
+
+  - name: python3-six
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app six
+
+  - name: python3-pyyaml
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app pyyaml
+
+  - name: python3-propcache
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app propcache
+
+  - name: python3-pillow
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app pillow
+
+  - name: python3-packaging
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app packaging
+
+  - name: python3-openstep-plist
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app openstep-plist
+
+  - name: python3-multidict
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app multidict
+
+  - name: python3-macholib
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app macholib
+
+  - name: python3-lxml
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app lxml
+
+  - name: python3-idna
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app idna
+
+  - name: python3-frozenlist
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app frozenlist
+
+  - name: python3-fonttools
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app fonttools
+
+  - name: python3-attrs
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app attrs
+
+  - name: python3-aiohappyeyeballs
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app aiohappyeyeballs
+
+  - name: python3-yarl
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app yarl
+
+  - name: python3-pyqt6
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app PyQt6
+
+  - name: python3-pyinstaller-hooks-contrib
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app pyinstaller-hooks-contrib
+
+  - name: python3-fs
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app fs
+
+  - name: python3-fontmath
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app fontMath
+
+  - name: python3-compreffor
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app compreffor
+
+  - name: python3-cffsubr
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app cffsubr
+
+  - name: python3-cattrs
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app cattrs
+
+  - name: python3-booleanoperations
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app booleanOperations
+
+  - name: python3-anyio
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app anyio
+
+  - name: python3-aiosignal
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app aiosignal
+
+  - name: python3-watchfiles
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app watchfiles
+
+  - name: python3-ufoLib2
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app ufoLib2
+
+  - name: python3-ufo2ft
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app ufo2ft
+
+  - name: python3-ufomerge
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app ufomerge
+
+  - name: python3-glyphslib
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app glyphslib
 
   - name: fontra-pak
     buildsystem: simple
