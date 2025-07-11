@@ -103,7 +103,7 @@ modules:
     sources:
       - type: file
         url: https://files.pythonhosted.org/packages/source/P/PyQt6/PyQt6-6.7.1.tar.gz
-        sha256: 3672a82ccd3a62e99ab9325aa9c2acbeef035da7f15d2f8b4c65a3b4c3b2d9d8
+        sha256: 3672a82ccd3a62e99ab200a13903421e2928e399fda25ced98d140313ad59cb9
 
   - name: python3-pyqt6-qt6
     buildsystem: simple
