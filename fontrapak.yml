@@ -75,7 +75,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/justvanrossum/delocate.git
-        branch: main
+        branch: master
 
   # PyPI dependencies
   - name: python3-aiohttp
