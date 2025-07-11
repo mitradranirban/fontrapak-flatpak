@@ -85,7 +85,7 @@ modules:
     sources:
       - type: file
         url: https://files.pythonhosted.org/packages/source/a/aiohttp/aiohttp-3.12.13.tar.gz
-        sha256: 7a5d4c6a9e0e8a9c4e8c1c3b2c8c3b9e5a4a5a5a5a5a5a5a5a5a5a5a5a5a5a5
+        sha256: 47e2da578528264a12e4e3dd8dd72a7289e5f812758fe086473fab037a10fcce
 
   - name: python3-setuptools
     buildsystem: simple
