@@ -115,11 +115,7 @@ modules:
     buildsystem: simple
     build-commands:
       - pip3 install --prefix=/app PyQt6-sip==13.10.2
-    sources:
-      - type: file
-        url: https://files.pythonhosted.org/packages/source/P/PyQt6-sip/PyQt6_sip-13.10.2.tar.gz
-        sha256: 464ad156bf526500ce6bd05cac7a82280af6309974d816739b4a9a627156fafe
-
+    
   - name: python3-pyinstaller
     buildsystem: simple
     build-commands:
