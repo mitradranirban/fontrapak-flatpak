@@ -17,10 +17,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install dependencies
-        run: |
-          dnf -y install flatpak-builder
-
       - name: Set up Flatpak repository
         run: |
           flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
@@ -29,18 +25,6 @@ jobs:
       -  name: Set up Git credentials
          run: |
            git config --global url."https://${{ secrets.GITHUB_TOKEN }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
-      - name: Check GitHub connectivity
-        run: |
-         for i in {1..5}; do
-            if curl -sSf https://github.com > /dev/null; then
-              echo "GitHub reachable."
-              exit 0
-            fi
-            echo "GitHub not reachable, retrying in 5 seconds..."
-            sleep 5
-          done
-          echo "GitHub not reachable after retries."
-          exit 1
 
       - name: Build Flatpak
         run: |
