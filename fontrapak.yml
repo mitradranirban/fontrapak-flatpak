@@ -282,6 +282,25 @@ modules:
     buildsystem: simple
     build-commands:
       - pip3 install --prefix=/app glyphslib
+  - name: python3-hatchling
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app hatchling==1.27.0
+
+  - name: python3-pathspec
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app pathspec==0.12.1
+
+  - name: python3-pluggy
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app pluggy==1.6.0
+
+  - name: python3-trove-classifiers
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app trove-classifiers==2025.5.9.12
 
   - name: fontra-pak
     buildsystem: simple
