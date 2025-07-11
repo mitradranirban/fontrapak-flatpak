@@ -94,7 +94,7 @@ modules:
     sources:
       - type: file
         url: https://files.pythonhosted.org/packages/source/s/setuptools/setuptools-80.8.0.tar.gz
-        sha256: d59a21b17a275fb872a9c3dae73963160ae079f1049ed956880cd7c09b120538
+        sha256: 49f7af965996f26d43c8ae34539c8d99c5042fbff34302ea151eaa9c207cd257
 
   - name: python3-pyqt6
     buildsystem: simple
