@@ -305,7 +305,6 @@ modules:
   - name: fontra-pak
     buildsystem: simple
     build-commands:
-      - pip3 install --prefix=/app .
       - pyinstaller FontraPak.spec -y --distpath=/app/bin
     sources:
       - type: git
