@@ -22,8 +22,8 @@ modules:
       - mv /app/bin/fontrapak/fontrapak /app/bin/fontrapak-bin # Rename to avoid conflict with wrapper script
 
     # Create a wrapper script to execute the binary
-    - install -d /app/bin
-    - |
+      - |
+      install -d /app/bin
       echo '#!/bin/sh' > /app/bin/fontrapak
       echo 'exec /app/bin/fontrapak-bin "$@"' >> /app/bin/fontrapak
-    - chmod +x /app/bin/fontrapak
+      chmod +x /app/bin/fontrapak
