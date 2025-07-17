@@ -92,7 +92,6 @@ jobs:
           body: | # Sets the release description
             Flatpak bundle for FontraPak version ${{ steps.get_version.outputs.TAG_NAME }}.
             Built on GitHub Actions.
-          files: |
-            fontra-pak-flatpak # Attaches the built Flatpak bundle to the release
+          files: fontra-pak.flatpak
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Provides the GitHub token for authentication
