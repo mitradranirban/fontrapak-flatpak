@@ -14,6 +14,10 @@ finish-args:
 modules:
   - name: fontrapak
     buildsystem: simple
+    sources:
+      # Add the pre-downloaded tarball as a source for this module
+      - type: file
+        path: fontrapak.tgz
     build-commands:
       # Download the precompiled binary
       - install -d /app/bin
