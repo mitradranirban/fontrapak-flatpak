@@ -34,6 +34,7 @@ jobs:
 
       - name: Build Flatpak
         run: |
+          cp ./downloads/fontrapak.tgz ./fontrapak.tgz
           flatpak-builder --repo=repo --force-clean build-dir fontrapak.yml  
           flatpak build-bundle repo fontra-pak.flatpak xyz.fontra.FontraPak   
 
