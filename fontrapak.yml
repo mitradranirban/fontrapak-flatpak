@@ -21,7 +21,7 @@ modules:
     build-commands:
       # Download the precompiled binary
       - install -d /app/bin
-      - tar -xzf fontrapak.tgz -C /app/bin
+      - tar --no-same-owner -xzf fontrapak.tgz -C /app/bin
       - mv /app/bin/fontrapak/fontrapak /app/bin/fontrapak-bin # Rename to avoid conflict with wrapper script
 
     # Create a wrapper script to execute the binary
