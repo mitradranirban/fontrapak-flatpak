@@ -1,32 +1,40 @@
 id: xyz.fontra.FontraPak
-runtime: org.kde.Platform
-runtime-version: '6.5'
-sdk: org.kde.Sdk
+runtime: org.freedesktop.Platform
+runtime-version: '23.08'
+sdk: org.freedesktop.Sdk
 command: fontrapak
 
 finish-args:
   - --share=ipc
   - --socket=x11
-  - --socket=pulseaudio
+  - --socket=wayland
   - --device=dri
   - --share=network
+  - --filesystem=host
 
 modules:
   - name: fontrapak
     buildsystem: simple
     sources:
-      # Add the pre-downloaded tarball as a source for this module
       - type: file
         path: fontrapak.tgz
     build-commands:
-      # Download the precompiled binary
+      # Create bin directory
       - install -d /app/bin
-      - tar --no-same-owner -xzf fontrapak.tgz -C /app/bin
-      - mv /app/bin/fontrapak/fontrapak /app/bin/fontrapak-bin # Rename to avoid conflict with wrapper script
-
-    # Create a wrapper script to execute the binary
+      
+      # Extract to temporary directory to avoid conflicts
+      - mkdir -p /tmp/fontrapak-extract
+      - tar --no-same-owner -xzf fontrapak.tgz -C /tmp/fontrapak-extract
+      
+      # Move the actual binary to /app/bin with a different name
+      - cp /tmp/fontrapak-extract/fontrapak/fontrapak /app/bin/fontrapak-bin
+      - chmod +x /app/bin/fontrapak-bin
+      
+      # Create wrapper script
       - |
-        install -d /app/bin
         echo '#!/bin/sh' > /app/bin/fontrapak
         echo 'exec /app/bin/fontrapak-bin "$@"' >> /app/bin/fontrapak
         chmod +x /app/bin/fontrapak
+      
+      # Clean up temporary directory
+      - rm -rf /tmp/fontrapak-extract

@@ -11,13 +11,14 @@ jobs:
   flatpak-builder:
     runs-on: ubuntu-latest # Specifies the runner environment
     container: # Defines a Docker container to run steps in
-      image: bilelmoussaoui/flatpak-github-actions:kde-6.5
+      image: bilelmoussaoui/flatpak-github-actions:freedesktop-23.08
       options: --privileged # --privileged is often needed for Flatpak builds in containers
 
     steps:
       - uses: actions/checkout@v4 # Checks out your repository code
         with:
           submodules: recursive # Ensures any submodules are also checked out
+          fetch-depth: 0 # Fetch full history for git operations
 
       - name: Pre-download FontraPak TGZ # Step to download the tarball before the Flatpak build environment is fully active
         run: |
@@ -28,11 +29,7 @@ jobs:
       - name: Set up Flatpak repository # Adds Flathub remote and installs necessary SDKs/Platforms
         run: |
           flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-          flatpak install -y flathub org.kde.Platform//6.5 org.kde.Sdk//6.5
-
-      - name: Set up Git credentials # Configures Git for pushing tags/releases later
-        run: |
-           git config --global url."https://${{ secrets.GITHUB_TOKEN }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+          flatpak install -y flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
 
       - name: Build Flatpak # The core Flatpak build step
         run: |
@@ -62,16 +59,28 @@ jobs:
           echo "Extracted Version: $VERSION"
           echo "TAG_NAME=$VERSION" >> $GITHUB_OUTPUT # Set the TAG_NAME as a step output
 
+      - name: Configure Git # Configure Git inside the container
+        if: success() && steps.get_version.outputs.TAG_NAME != ''
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions@github.com"
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+
       - name: Create Git Tag # Creates an annotated Git tag
         # This step runs only if the previous steps were successful AND a TAG_NAME was extracted
         if: success() && steps.get_version.outputs.TAG_NAME != ''
-        working-directory: ${{ github.workspace }}
         run: |
-          git config user.name "GitHub Actions" # Configure Git user for the tag
-          git config user.email "github-actions@github.com"
-          TAG_NAME=${{ steps.get_version.outputs.TAG_NAME }} # Get the tag name from the previous step's output
-          git tag -a "$TAG_NAME" -m "Release $TAG_NAME" # Create the annotated tag
-          git push origin "$TAG_NAME" # Push the new tag to the repository
+          TAG_NAME=${{ steps.get_version.outputs.TAG_NAME }}
+          # Check if tag already exists
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Tag $TAG_NAME already exists, skipping tag creation"
+          else
+            echo "Creating tag $TAG_NAME"
+            git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+            git push origin "$TAG_NAME"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release # Creates a new GitHub Release
         # This step runs only if the previous steps were successful AND a TAG_NAME was extracted
