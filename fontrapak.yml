@@ -23,7 +23,7 @@ modules:
 
     # Create a wrapper script to execute the binary
       - |
-      install -d /app/bin
-      echo '#!/bin/sh' > /app/bin/fontrapak
-      echo 'exec /app/bin/fontrapak-bin "$@"' >> /app/bin/fontrapak
-      chmod +x /app/bin/fontrapak
+        install -d /app/bin
+        echo '#!/bin/sh' > /app/bin/fontrapak
+        echo 'exec /app/bin/fontrapak-bin "$@"' >> /app/bin/fontrapak
+        chmod +x /app/bin/fontrapak
