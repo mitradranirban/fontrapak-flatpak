@@ -22,19 +22,16 @@ modules:
       # Create bin directory
       - install -d /app/bin
       
-      # Extract to temporary directory to avoid conflicts
-      - mkdir -p /tmp/fontrapak-extract
-      - tar --no-same-owner -xzf fontrapak.tgz -C /tmp/fontrapak-extract
-      
-      # Move the actual binary to /app/bin with a different name
-      - cp /tmp/fontrapak-extract/fontrapak/fontrapak /app/bin/fontrapak-bin
+      # Extract tarball and install binary
+      - tar --no-same-owner -xzf fontrapak.tgz
+      - cp fontrapak/fontrapak /app/bin/fontrapak-bin
       - chmod +x /app/bin/fontrapak-bin
       
-      # Create wrapper script
+      # Clean up extracted directory first
+      - rm -rf fontrapak
+      
+      # Create wrapper script after cleanup
       - |
         echo '#!/bin/sh' > /app/bin/fontrapak
         echo 'exec /app/bin/fontrapak-bin "$@"' >> /app/bin/fontrapak
         chmod +x /app/bin/fontrapak
-      
-      # Clean up temporary directory
-      - rm -rf /tmp/fontrapak-extract
