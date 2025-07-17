@@ -17,6 +17,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Pre-download FontraPak TGZ
+        run: |
+          mkdir -p ./downloads
+          curl -L https://fonts.atipra.in/fontrapak/fontrapak.tgz -o ./downloads/fontrapak.tgz
+      # Add a timeout to prevent infinite hang in case of network issues
+        timeout-minutes: 5
       - name: Set up Flatpak repository
         run: |
           flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
