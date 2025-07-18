@@ -1,19 +1,28 @@
-# Fontra Pak
+# Fontra Pak Flatpak
 
 Fontra Pak is a cross-platform, standalone, bundled [Fontra](https://github.com/googlefonts/fontra) application for desktop use.
 
+This repository is for Flatpak packaging of Fontrapak for Linux desktops.
 ## Download
 
-Nightly builds can be downloaded from the topmost [“Build Application”](https://github.com/googlefonts/fontra-pak/actions) workflow. You need to be signed in to GitHub to be able to download.
+Go to the Release section to download the flatpak
 
-## Build locally
+## Install
 
-To build, set up a Python 3.10 (or higher) virtual environment, install the requirements from `requirements.txt`, then run:
+You should activate flathub repo for installing dependancy
+```
+flatpak remote-add --if-not-exists flathub https://
+dl.flathub.org/repo/flathub.flatpakrepo
 
-    pyinstaller FontraPak.spec -y
+```
+Then go to the folder where you downloaded the flatpak and run
 
-## How it works
+`flatpak install fontrapak.flatpak`
 
-Easy!
+## Use
 
-https://github.com/googlefonts/fontra-pak/assets/4246121/a4e8054e-995a-4bcc-ac64-5c8a0ea415aa
+To start fontrapak open a terminal and type the following command
+
+`flatpak run xyz.fontra.FontraPak`
+
+Click on Documentation buttor to know how to use fontra.
