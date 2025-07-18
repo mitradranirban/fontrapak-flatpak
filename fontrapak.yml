@@ -17,9 +17,15 @@ finish-args:
 modules:
   - name: fontrapak
     buildsystem: simple
-    sources:
+     sources:
       - type: file
         path: fontrapak.tgz
+      - type: file
+        path: data/icons/fontrapak.svg
+        dest-filename: fontrapak.svg
+      - type: file
+        path: xyz.fontra.FontraPak.desktop
+        dest-filename: xyz.fontra.FontraPak.desktop
     build-commands:
       # Create bin directory
       - install -d /app/bin
