@@ -22,6 +22,6 @@ Then go to the folder where you downloaded the flatpak and run
 ## Use
 
 To start fontrapak now, just go to your application menu and click the FontraPak icon.
-![FontraPak](data/icon/fontrapak.svg)
+![FontraPak](data/icons/fontrapak.svg)
 
 Click on Documentation buttor to know how to use fontra.
