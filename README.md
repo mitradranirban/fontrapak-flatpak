@@ -17,12 +17,11 @@ dl.flathub.org/repo/flathub.flatpakrepo
 ```
 Then go to the folder where you downloaded the flatpak and run
 
-`flatpak install fontrapak.flatpak`
+`flatpak install fontra-pak.flatpak`
 
 ## Use
 
-To start fontrapak open a terminal and type the following command
-
-`flatpak run xyz.fontra.FontraPak`
+To start fontrapak now, just go to your application menu and click the FontraPak icon.
+![FontraPak](data/icon/fontrapak.svg)
 
 Click on Documentation buttor to know how to use fontra.
