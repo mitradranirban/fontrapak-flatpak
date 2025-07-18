@@ -11,13 +11,11 @@ finish-args:
   - --device=dri
   - --share=network
   - --filesystem=host
-  - --metadata=X-Flatpak-DesktopFile=xyz.fontra.FontrPak.desktop
-
 
 modules:
   - name: fontrapak
     buildsystem: simple
-     sources:
+    sources:
       - type: file
         path: fontrapak.tgz
       - type: file
@@ -34,8 +32,6 @@ modules:
       - tar --no-same-owner -xzf fontrapak.tgz
       - cp fontrapak/fontrapak /app/bin/fontrapak-bin
       - chmod +x /app/bin/fontrapak-bin
-      # add scalable icon file
-      - install -Dm644 data/icons/fontrapak.svg /app/share/icons/hicolor/scalable/apps/fontrapak.svg
       
       # Clean up extracted directory first
       - rm -rf fontrapak
@@ -45,3 +41,7 @@ modules:
         echo '#!/bin/sh' > /app/bin/fontrapak
         echo 'exec /app/bin/fontrapak-bin "$@"' >> /app/bin/fontrapak
         chmod +x /app/bin/fontrapak
+      
+      # Install icon and desktop file
+      - install -Dm644 fontrapak.svg /app/share/icons/hicolor/scalable/apps/xyz.fontra.FontraPak.svg
+      - install -Dm644 xyz.fontra.FontraPak.desktop /app/share/applications/xyz.fontra.FontraPak.desktop
