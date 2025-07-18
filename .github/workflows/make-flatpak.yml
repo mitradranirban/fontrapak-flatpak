@@ -24,7 +24,7 @@ jobs:
         run: |
           mkdir -p ./downloads # Create a directory to store the downloaded file
           curl -L https://fonts.atipra.in/fontrapak/fontrapak.tgz -o ./downloads/fontrapak.tgz
-        timeout-minutes: 10 # Sets a timeout for this step to prevent indefinite hanging
+        timeout-minutes: 20 # Sets a timeout for this step to prevent indefinite hanging
 
       - name: Set up Flatpak repository # Adds Flathub remote and installs necessary SDKs/Platforms
         run: |
