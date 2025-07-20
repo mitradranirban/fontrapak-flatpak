@@ -59,12 +59,12 @@ jobs:
           git add last_checked_release.txt
           git commit -m "Update last checked release to ${{ steps.check.outputs.release-tag }}" || exit 0
           git push
-name: Build Flatpak
+  name: Build Flatpak
   build-and-release-flatpak:
     needs: check-release
     if: needs.check-release.outputs.new-release == 'true'
     runs-on: ubuntu-latest
-jobs:
+  jobs:
   flatpak-builder:
     runs-on: ubuntu-latest # Specifies the runner environment
     container: # Defines a Docker container to run steps in
