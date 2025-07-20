@@ -1,9 +1,10 @@
----
 name: Check for New Release and Build Flatpak
+
 on:
   schedule:
-    - cron: 0 6 * * *
-  workflow_dispatch: null
+    - cron: "0 6 * * *"  # Run daily at 6 AM UTC
+  workflow_dispatch:
+
 jobs:
   check-release:
     runs-on: ubuntu-latest
@@ -14,23 +15,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Check for new release
         id: check
-        run: >
+        run: |
           # Get the latest release from the target repository
-
           LATEST_RELEASE=$(curl -s https://api.github.com/repos/mitradranirban/fontra-pak-linux/releases/latest)
-
           LATEST_TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
-
           RELEASE_URL=$(echo "$LATEST_RELEASE" | jq -r '.html_url')
-
-
+          
           echo "Latest release tag: $LATEST_TAG"
-
-
+          
           # Check if we have a stored last checked tag
-
           if [ -f "last_checked_release.txt" ]; then
             LAST_CHECKED=$(cat last_checked_release.txt)
             echo "Last checked release: $LAST_CHECKED"
@@ -38,10 +36,8 @@ jobs:
             LAST_CHECKED=""
             echo "No previous release check found"
           fi
-
-
+          
           # Compare tags
-
           if [ "$LATEST_TAG" != "$LAST_CHECKED" ] && [ "$LATEST_TAG" != "null" ]; then
             echo "New release found: $LATEST_TAG"
             echo "new-release=true" >> $GITHUB_OUTPUT
@@ -54,90 +50,79 @@ jobs:
             echo "No new release found"
             echo "new-release=false" >> $GITHUB_OUTPUT
           fi
+
       - name: Commit updated release tag
         if: steps.check.outputs.new-release == 'true'
-        run: >
+        run: |
           git config --local user.email "action@github.com"
-
           git config --local user.name "GitHub Action"
-
           git add last_checked_release.txt
-
           git commit -m "Update last checked release to ${{ steps.check.outputs.release-tag }}" || exit 0
-
           git push
-  
+
   build-and-release-flatpak:
     needs: check-release
     if: needs.check-release.outputs.new-release == 'true'
-    runs-on: ubuntu-latest
-  flatpak-builder:
     runs-on: ubuntu-latest
     container:
       image: bilelmoussaoui/flatpak-github-actions:freedesktop-23.08
       options: --privileged
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Pre-download FontraPak TGZ
-        run: >
-          mkdir -p ./downloads # Create a directory to store the downloaded file
-
+        run: |
+          mkdir -p ./downloads
+          echo "Downloading fontrapak.tgz..."
           curl -L https://github.com/mitradranirban/fontra-pak-linux/releases/latest/download/fontrapak.tgz -o ./downloads/fontrapak.tgz
+          echo "Download completed"
         timeout-minutes: 20
+
       - name: Set up Flatpak repository
-        run: >
-          flatpak remote-add --if-not-exists flathub
-          https://dl.flathub.org/repo/flathub.flatpakrepo
-
+        run: |
+          flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
           flatpak install -y flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
+
       - name: Build Flatpak
-        run: >
-          # Copy the pre-downloaded tarball to the repository root for
-          flatpak-builder to find
-
+        run: |
+          # Copy the pre-downloaded tarball to the repository root
           cp ./downloads/fontrapak.tgz ./fontrapak.tgz
-
+          
+          # Build the Flatpak
           flatpak-builder --repo=repo --force-clean build-dir fontrapak.yml
-
           flatpak build-bundle repo fontra-pak.flatpak xyz.fontra.FontraPak
-      - name: Upload Flatpak bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: fontra-pak-flatpak
-          path: fontra-pak.flatpak
+
       - name: Extract version from fontrapak.tgz
         id: get_version
-        run: >
+        run: |
           # Create a temporary directory for extraction
-
           mkdir -p ./extracted_fontrapak
-
+          
           # Extract only the 'fontrapak/version.txt' file to the temporary directory
-
-          # --no-same-owner is crucial to avoid permission errors in the sandbox
-
           tar --no-same-owner -xzf fontrapak.tgz -C ./extracted_fontrapak fontrapak/version.txt
-
-          # Read the version string, remove any leading/trailing whitespace, and set it as a step output
-
+          
+          # Read the version string and set it as output
           VERSION=$(cat ./extracted_fontrapak/fontrapak/version.txt | tr -d '[:space:]')
-
           echo "Extracted Version: $VERSION"
+          echo "TAG_NAME=$VERSION" >> $GITHUB_OUTPUT
 
-          echo "TAG_NAME=$VERSION" >> $GITHUB_OUTPUT # Set the TAG_NAME as a step output
       - name: Configure Git
         if: success() && steps.get_version.outputs.TAG_NAME != ''
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
           git config --global --add safe.directory $GITHUB_WORKSPACE
+
       - name: Create Git Tag
         if: success() && steps.get_version.outputs.TAG_NAME != ''
         run: |
           TAG_NAME=${{ steps.get_version.outputs.TAG_NAME }}
+          
           # Check if tag already exists
           if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
             echo "Tag $TAG_NAME already exists, skipping tag creation"
@@ -148,17 +133,30 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create GitHub Release
         if: success() && steps.get_version.outputs.TAG_NAME != ''
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get_version.outputs.TAG_NAME }}
           name: Release ${{ steps.get_version.outputs.TAG_NAME }}
-          body: >
-            Flatpak bundle for FontraPak version ${{
-            steps.get_version.outputs.TAG_NAME }}.
-
-            Built on GitHub Actions.
+          body: |
+            Flatpak bundle for FontraPak version ${{ steps.get_version.outputs.TAG_NAME }}.
+            
+            Built automatically from upstream release: ${{ needs.check-release.outputs.release-url }}
+            
+            ## Installation
+            ```bash
+            flatpak install fontra-pak.flatpak
+            ```
           files: fontra-pak.flatpak
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Flatpak bundle as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fontra-pak-flatpak-${{ steps.get_version.outputs.TAG_NAME }}
+          path: fontra-pak.flatpak
+          retention-days: 30
