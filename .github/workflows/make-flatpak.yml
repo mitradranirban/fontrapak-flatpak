@@ -1,12 +1,69 @@
-name: Build Flatpak
+name: Check for New Release
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-  workflow_dispatch: # Allows manual triggering of the workflow
+  schedule:
+    # Run daily at 6:00 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Allow manual triggering
 
+jobs:
+  check-release:
+    runs-on: ubuntu-latest
+    outputs:
+      new-release: ${{ steps.check.outputs.new-release }}
+      release-tag: ${{ steps.check.outputs.release-tag }}
+      release-url: ${{ steps.check.outputs.release-url }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Check for new release
+        id: check
+        run: |
+          # Get the latest release from the target repository
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/mitradranirban/fontra-pak-linux/releases/latest)
+          LATEST_TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
+          RELEASE_URL=$(echo "$LATEST_RELEASE" | jq -r '.html_url')
+          
+          echo "Latest release tag: $LATEST_TAG"
+          
+          # Check if we have a stored last checked tag
+          if [ -f "last_checked_release.txt" ]; then
+            LAST_CHECKED=$(cat last_checked_release.txt)
+            echo "Last checked release: $LAST_CHECKED"
+          else
+            LAST_CHECKED=""
+            echo "No previous release check found"
+          fi
+          
+          # Compare tags
+          if [ "$LATEST_TAG" != "$LAST_CHECKED" ] && [ "$LATEST_TAG" != "null" ]; then
+            echo "New release found: $LATEST_TAG"
+            echo "new-release=true" >> $GITHUB_OUTPUT
+            echo "release-tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+            echo "release-url=$RELEASE_URL" >> $GITHUB_OUTPUT
+            
+            # Update the last checked release
+            echo "$LATEST_TAG" > last_checked_release.txt
+          else
+            echo "No new release found"
+            echo "new-release=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Commit updated release tag
+        if: steps.check.outputs.new-release == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add last_checked_release.txt
+          git commit -m "Update last checked release to ${{ steps.check.outputs.release-tag }}" || exit 0
+          git push
+name: Build Flatpak
+  build-and-release-flatpak:
+    needs: check-release
+    if: needs.check-release.outputs.new-release == 'true'
+    runs-on: ubuntu-latest
 jobs:
   flatpak-builder:
     runs-on: ubuntu-latest # Specifies the runner environment
