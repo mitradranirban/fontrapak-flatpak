@@ -6,16 +6,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  check-release:
+  check-and-build-flatpak:
     runs-on: ubuntu-latest
-    outputs:
-      new-release: ${{ steps.check.outputs.new-release }}
-      release-tag: ${{ steps.check.outputs.release-tag }}
-      release-url: ${{ steps.check.outputs.release-url }}
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:freedesktop-23.08
+      options: --privileged
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          submodules: recursive
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check for new release
@@ -60,46 +61,52 @@ jobs:
           git commit -m "Update last checked release to ${{ steps.check.outputs.release-tag }}" || exit 0
           git push
 
-  build-and-release-flatpak:
-    needs: check-release
-    if: needs.check-release.outputs.new-release == 'true'
-    runs-on: ubuntu-latest
-    container:
-      image: bilelmoussaoui/flatpak-github-actions:freedesktop-23.08
-      options: --privileged
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Exit if no new release
+        if: steps.check.outputs.new-release != 'true'
+        run: |
+          echo "No new release found. Skipping Flatpak build."
+          echo "SKIP_BUILD=true" >> $GITHUB_OUTPUT
 
       - name: Pre-download FontraPak TGZ
+        if: steps.check.outputs.new-release == 'true'
         run: |
           mkdir -p ./downloads
           echo "Downloading fontrapak.tgz..."
           curl -L https://github.com/mitradranirban/fontra-pak-linux/releases/latest/download/fontrapak.tgz -o ./downloads/fontrapak.tgz
           echo "Download completed"
+          ls -la ./downloads/
         timeout-minutes: 20
 
       - name: Set up Flatpak repository
+        if: steps.check.outputs.new-release == 'true'
         run: |
+          echo "Setting up Flatpak repository..."
           flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
           flatpak install -y flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
+          echo "Flatpak setup completed"
 
       - name: Build Flatpak
+        if: steps.check.outputs.new-release == 'true'
         run: |
+          echo "Starting Flatpak build..."
           # Copy the pre-downloaded tarball to the repository root
           cp ./downloads/fontrapak.tgz ./fontrapak.tgz
+          
+          # Verify the file exists
+          ls -la fontrapak.tgz
           
           # Build the Flatpak
           flatpak-builder --repo=repo --force-clean build-dir fontrapak.yml
           flatpak build-bundle repo fontra-pak.flatpak xyz.fontra.FontraPak
+          
+          echo "Flatpak build completed"
+          ls -la fontra-pak.flatpak
 
       - name: Extract version from fontrapak.tgz
+        if: steps.check.outputs.new-release == 'true'
         id: get_version
         run: |
+          echo "Extracting version information..."
           # Create a temporary directory for extraction
           mkdir -p ./extracted_fontrapak
           
@@ -111,18 +118,19 @@ jobs:
           echo "Extracted Version: $VERSION"
           echo "TAG_NAME=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Configure Git
-        if: success() && steps.get_version.outputs.TAG_NAME != ''
+      - name: Configure Git for tagging
+        if: steps.check.outputs.new-release == 'true' && steps.get_version.outputs.TAG_NAME != ''
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
           git config --global --add safe.directory $GITHUB_WORKSPACE
 
       - name: Create Git Tag
-        if: success() && steps.get_version.outputs.TAG_NAME != ''
+        if: steps.check.outputs.new-release == 'true' && steps.get_version.outputs.TAG_NAME != ''
         run: |
           TAG_NAME=${{ steps.get_version.outputs.TAG_NAME }}
           
+          echo "Checking if tag $TAG_NAME exists..."
           # Check if tag already exists
           if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
             echo "Tag $TAG_NAME already exists, skipping tag creation"
@@ -130,12 +138,13 @@ jobs:
             echo "Creating tag $TAG_NAME"
             git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
             git push origin "$TAG_NAME"
+            echo "Tag created and pushed"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
-        if: success() && steps.get_version.outputs.TAG_NAME != ''
+        if: steps.check.outputs.new-release == 'true' && steps.get_version.outputs.TAG_NAME != ''
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get_version.outputs.TAG_NAME }}
@@ -143,7 +152,7 @@ jobs:
           body: |
             Flatpak bundle for FontraPak version ${{ steps.get_version.outputs.TAG_NAME }}.
             
-            Built automatically from upstream release: ${{ needs.check-release.outputs.release-url }}
+            Built automatically from upstream release: ${{ steps.check.outputs.release-url }}
             
             ## Installation
             ```bash
@@ -154,9 +163,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Flatpak bundle as artifact
-        if: always()
+        if: steps.check.outputs.new-release == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: fontra-pak-flatpak-${{ steps.get_version.outputs.TAG_NAME }}
           path: fontra-pak.flatpak
           retention-days: 30
+
+      - name: Workflow summary
+        if: always()
+        run: |
+          if [ "${{ steps.check.outputs.new-release }}" = "true" ]; then
+            echo "✅ New release detected and Flatpak built successfully"
+            echo "📦 Version: ${{ steps.get_version.outputs.TAG_NAME }}"
+            echo "🔗 Upstream release: ${{ steps.check.outputs.release-url }}"
+          else
+            echo "ℹ️ No new release found - workflow completed without building"
+          fi
