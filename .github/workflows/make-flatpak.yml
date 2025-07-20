@@ -23,7 +23,7 @@ jobs:
       - name: Pre-download FontraPak TGZ # Step to download the tarball before the Flatpak build environment is fully active
         run: |
           mkdir -p ./downloads # Create a directory to store the downloaded file
-          curl -L https://fonts.atipra.in/fontrapak/fontrapak.tgz -o ./downloads/fontrapak.tgz
+          curl -L https://github.com/mitradranirban/fontra-pak-linux/release/latest/download/fontrapak.tgz -o ./downloads/fontrapak.tgz
         timeout-minutes: 20 # Sets a timeout for this step to prevent indefinite hanging
 
       - name: Set up Flatpak repository # Adds Flathub remote and installs necessary SDKs/Platforms
