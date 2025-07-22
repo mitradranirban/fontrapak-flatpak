@@ -4,25 +4,7 @@ on:
   schedule:
     - cron: "0 6 * * *"  # Run daily at 6 AM UTC
   workflow_dispatch:
-
-jobs:
-  check-and-build-flatpak:
-    runs-on: ubuntu-latest
-    container:
-      image: bilelmoussaoui/flatpak-github-actions:freedesktop-23.08
-      options: --privileged
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install requirements
-        run: |
-          sudo apt install jq
-      - name: Check for new release
+- name: Check for new release
         id: check
         run: |
           # Get the latest release from the target repository
@@ -69,6 +51,19 @@ jobs:
         run: |
           echo "No new release found. Skipping Flatpak build."
           echo "SKIP_BUILD=true" >> $GITHUB_OUTPUT
+jobs:
+  check-and-build-flatpak:
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:freedesktop-23.08
+      options: --privileged
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pre-download FontraPak TGZ
         if: steps.check.outputs.new-release == 'true'
