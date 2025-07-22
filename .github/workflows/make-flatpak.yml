@@ -19,6 +19,9 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install requirements
+        run: |
+          sudo apt install jq
       - name: Check for new release
         id: check
         run: |
