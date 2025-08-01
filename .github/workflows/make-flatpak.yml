@@ -104,7 +104,7 @@ jobs:
           ls -la fontrapak.tgz
           
           # Build the Flatpak
-          flatpak-builder --repo=repo --force-clean build-dir fontrapak.yml
+          flatpak-builder --repo=repo --force-clean build-dir xyz.fontra.FontraPak.yml
           flatpak build-bundle repo fontra-pak.flatpak xyz.fontra.FontraPak
           
           echo "Flatpak build completed"
