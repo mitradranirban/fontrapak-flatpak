@@ -1,6 +1,6 @@
 # Fontra Pak Flatpak
 
-Fontra Pak is a cross-platform, standalone, bundled [Fontra](https://github.com/googlefonts/fontra) application for desktop use.
+Fontra Pak is a cross-platform, standalone, bundled [Fontra](https://github.com/fontra/fontra) application for desktop use.
 
 This repository is for Flatpak packaging of Fontrapak for Linux desktops.
 ## Download
