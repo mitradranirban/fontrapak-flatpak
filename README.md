@@ -25,3 +25,6 @@ To start fontrapak now, just go to your application menu and click the FontraPak
 ![FontraPak](data/icons/fontrapak.svg)
 
 Click on Documentation buttor to know how to use fontra.
+
+<!--DOWNLOAD_COUNT-->
+**Total release downloads:** 19
