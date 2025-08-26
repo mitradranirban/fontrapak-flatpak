@@ -30,6 +30,11 @@ jobs:
             fi
             count=$(echo "$response" | jq '[.[] | .assets[]?.download_count] | add // 0')
             if [[ "$count" == "null" ]]; then count=0; fi
+            releases_count=$(echo "$response" | jq 'length')
+            if [[ "$releases_count" -eq 0 || "$releases_count" -lt 100 ]]; then
+              total=$((total + count))
+              break
+            fi
             if [[ "$response" == "[]" ]]; then break; fi
             total=$((total + count))
             ((page++))
