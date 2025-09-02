@@ -144,7 +144,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download Flatpak artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: fontra-pak-flatpak-*
           merge-multiple: true
