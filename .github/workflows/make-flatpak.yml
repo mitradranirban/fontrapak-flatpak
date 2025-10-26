@@ -52,6 +52,7 @@ jobs:
             echo "new-release=false" >> $GITHUB_OUTPUT
             echo "release-tag=" >> $GITHUB_OUTPUT
             echo "release-url=" >> $GITHUB_OUTPUT
+          fi
 
       - name: Commit updated release tag
         if: steps.check.outputs.new-release == 'true'
