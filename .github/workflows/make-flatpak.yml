@@ -87,6 +87,15 @@ jobs:
           ls -la ./downloads/
         timeout-minutes: 20
 
+      - name: Ensure machine-id exists
+  	run: |
+    	 sudo mkdir -p /etc
+    	 if [ ! -f /etc/machine-id ]; then
+          sudo systemd-machine-id-setup
+         fi
+         sudo mkdir -p /var/lib/dbus
+         sudo ln -sf /etc/machine-id /var/lib/dbus/machine-id
+        shell: sh -e {0}
       - name: Build Flatpak
         run: |
           echo "Starting Flatpak build..."
