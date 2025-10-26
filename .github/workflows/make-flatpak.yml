@@ -68,7 +68,7 @@ jobs:
     needs: check-release
     if: needs.check-release.outputs.new-release == 'true'
     container:
-      image: flatpak/flatpak-github-actions:freedesktop-24.08
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-24.08
       options: --privileged
     steps:
       - name: Checkout repository
