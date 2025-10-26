@@ -96,16 +96,13 @@ jobs:
 
       - name: Set up machine-id and D-Bus
         run: |
-          echo "Setting up machine-id and D-Bus..."
+          echo "Setting up machine-id"
           # Set up machine-id
           touch /etc/machine-id
           echo "1234567890abcdef1234567890abcdef" > /etc/machine-id
           mkdir -p /var/lib/dbus
           ln -sf /etc/machine-id /var/lib/dbus/machine-id
-          # Start D-Bus session daemon
-          mkdir -p /var/run/dbus
-          dbus-daemon --system --fork
-          export DBUS_SESSION_BUS_ADDRESS=unix:path=/var/run/dbus/system_bus_socket
+          
         shell: sh -e {0}
 
       - name: Build Flatpak
