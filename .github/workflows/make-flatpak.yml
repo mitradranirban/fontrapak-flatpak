@@ -52,7 +52,6 @@ jobs:
             echo "new-release=false" >> $GITHUB_OUTPUT
             echo "release-tag=" >> $GITHUB_OUTPUT
             echo "release-url=" >> $GITHUB_OUTPUT
-          fi
 
       - name: Commit updated release tag
         if: steps.check.outputs.new-release == 'true'
@@ -94,40 +93,44 @@ jobs:
           flatpak install -y flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
           echo "Flatpak setup completed"
 
-      - name: Set up machine-id
+      - name: Set up machine-id and D-Bus
         run: |
-          echo "Setting up machine-id..."
+          echo "Setting up machine-id and D-Bus..."
+          # Set up machine-id
           touch /etc/machine-id
           echo "1234567890abcdef1234567890abcdef" > /etc/machine-id
           mkdir -p /var/lib/dbus
           ln -sf /etc/machine-id /var/lib/dbus/machine-id
+          # Start D-Bus session daemon
+          mkdir -p /var/run/dbus
+          dbus-daemon --system --fork
+          export DBUS_SESSION_BUS_ADDRESS=unix:path=/var/run/dbus/system_bus_socket
         shell: sh -e {0}
+
       - name: Build Flatpak
+        env:
+          DBUS_SESSION_BUS_ADDRESS: unix:path=/var/run/dbus/system_bus_socket
         run: |
           echo "Starting Flatpak build..."
           # Copy the pre-downloaded tarball to the repository root
           cp ./downloads/fontrapak.tgz ./fontrapak.tgz
-          
           # Verify the file exists
           ls -la fontrapak.tgz
-          
           # Build the Flatpak
           flatpak-builder --repo=repo --force-clean build-dir xyz.fontra.FontraPak.yml
           flatpak build-bundle repo fontra-pak.flatpak xyz.fontra.FontraPak
-          
           echo "Flatpak build completed"
           ls -la fontra-pak.flatpak
-
+        shell: sh -e {0}
+      
       - name: Extract version from fontrapak.tgz
         id: get_version
         run: |
           echo "Extracting version information..."
           # Create a temporary directory for extraction
           mkdir -p ./extracted_fontrapak
-          
           # Extract only the 'fontrapak/version.txt' file to the temporary directory
           tar --no-same-owner -xzf fontrapak.tgz -C ./extracted_fontrapak fontrapak/version.txt
-          
           # Read the version string and set it as output
           VERSION=$(cat ./extracted_fontrapak/fontrapak/version.txt | tr -d '[:space:]')
           echo "Extracted Version: $VERSION"
@@ -163,7 +166,6 @@ jobs:
           # Get the artifact file name and extract version
           FLATPAK_FILE=$(ls fontra-pak.flatpak)
           echo "Found Flatpak file: $FLATPAK_FILE"
-          
           # Download the tgz to extract version info
           curl -L https://github.com/mitradranirban/fontra-pak-linux/releases/latest/download/fontrapak.tgz -o fontrapak.tgz
           mkdir -p ./extracted_fontrapak
@@ -182,7 +184,6 @@ jobs:
         if: steps.get_version.outputs.TAG_NAME != ''
         run: |
           TAG_NAME=${{ steps.get_version.outputs.TAG_NAME }}
-          
           echo "Checking if tag $TAG_NAME exists..."
           # Check if tag already exists
           if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
@@ -192,7 +193,6 @@ jobs:
             git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
             git push origin "$TAG_NAME"
             echo "Tag created and pushed"
-          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
