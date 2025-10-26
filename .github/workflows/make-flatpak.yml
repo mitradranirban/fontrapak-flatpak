@@ -87,27 +87,7 @@ jobs:
           ls -la ./downloads/
         timeout-minutes: 20
 
-      - name: Set up Flatpak repository
-        run: |
-          echo "Setting up Flatpak repository..."
-          flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-          flatpak install -y flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
-          echo "Flatpak setup completed"
-
-      - name: Set up machine-id and D-Bus
-        run: |
-          echo "Setting up machine-id"
-          # Set up machine-id
-          touch /etc/machine-id
-          echo "1234567890abcdef1234567890abcdef" > /etc/machine-id
-          mkdir -p /var/lib/dbus
-          ln -sf /etc/machine-id /var/lib/dbus/machine-id
-          
-        shell: sh -e {0}
-
       - name: Build Flatpak
-        env:
-          DBUS_SESSION_BUS_ADDRESS: unix:path=/var/run/dbus/system_bus_socket
         run: |
           echo "Starting Flatpak build..."
           # Copy the pre-downloaded tarball to the repository root
