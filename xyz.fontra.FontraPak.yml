@@ -17,8 +17,10 @@ modules:
   - name: fontrapak
     buildsystem: simple
     sources:
-      - type: file
-        path: fontrapak.tgz
+      sources:
+      - type: archive
+        url: https://github.com/mitradranirban/fontra-pak-linux/releases/download/0.1.dev12005%2Bgd752a3d9d/fontrapak.tgz
+        sha256: 47238cf8dff291da00b413b900ed03b837766dc46ed575064bd8cb1ed823223a
       - type: file
         path: data/icons/fontrapak.svg
         dest-filename: fontrapak.svg
