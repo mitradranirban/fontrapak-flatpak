@@ -31,7 +31,8 @@ modules:
       - install -d /app/bin
       
       # Extract tarball and install binary
-      - tar --no-same-owner -xzf fontrapak.tgz
+      - ls -la
+      - tar --no-same-owner -xzf ${PWD}/fontrapak.tgz
       - cp fontrapak/fontrapak /app/bin/fontrapak-bin
       - chmod +x /app/bin/fontrapak-bin
       
