@@ -32,9 +32,7 @@ modules:
       
       # Extract tarball and install binary
       - ls -la
-      - tar --no-same-owner -xzf ${PWD}/fontrapak.tgz
-      - cp fontrapak/fontrapak /app/bin/fontrapak-bin
-      - chmod +x /app/bin/fontrapak-bin
+      - cp fontrapak /app/bin/fontrapak-bin
       
       # Clean up extracted directory first
       - rm -rf fontrapak
