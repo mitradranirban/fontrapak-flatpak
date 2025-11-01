@@ -20,7 +20,7 @@ jobs:
           manifest-path: xyz.fontra.FontraPak.yml
           cache-key: flatpak-builder-${{ github.sha }}
       - name: Upload Flatpak bundle as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: fontra-pak-flatpak
           path: fontra-pak.flatpak
