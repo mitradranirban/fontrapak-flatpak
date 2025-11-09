@@ -26,9 +26,7 @@ modules:
       - type: file
         path: xyz.fontra.FontraPak.desktop
         dest-filename: xyz.fontra.FontraPak.desktop
-      - type: file
-        path: xyz.fontra.FontraPak.appdata.xml
-        dest-filename: xyz.fontra.FontraPak.appdata.xml
+
     build-commands:
       # Create bin directory
       - install -d /app/bin
@@ -49,4 +47,4 @@ modules:
       # Install icon and desktop file
       - install -Dm644 fontrapak.svg /app/share/icons/hicolor/scalable/apps/xyz.fontra.FontraPak.svg
       - install -Dm644 xyz.fontra.FontraPak.desktop /app/share/applications/xyz.fontra.FontraPak.desktop
-      - install -Dm644 xyz.fontra.FontraPak.appdata.xml /app/share/metainfo/xyz.fontra.FontraPak.appdata.xml
+     
