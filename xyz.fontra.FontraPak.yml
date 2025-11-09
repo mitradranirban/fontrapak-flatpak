@@ -19,13 +19,16 @@ modules:
     sources:
       - type: archive
         url: https://github.com/mitradranirban/fontra-pak-linux/releases/download/0.1.dev12005%2Bgd752a3d9d/fontrapak.tgz
-        sha256: 47238cf8dff291da00b413b900ed03b837766dc46ed575064bd8cb1ed823223a
+        sha256: eef66db8d1d090608023ddbe616316cac5ab5774ff65b8ed402cd156bb8f47e7
       - type: file
         path: data/icons/fontrapak.svg
         dest-filename: fontrapak.svg
       - type: file
         path: xyz.fontra.FontraPak.desktop
         dest-filename: xyz.fontra.FontraPak.desktop
+      - type: file
+        path: xyz.fontra.FontraPak.appdata.xml
+        dest-filename: xyz.fontra.FontraPak.appdata.xml
     build-commands:
       # Create bin directory
       - install -d /app/bin
@@ -46,3 +49,4 @@ modules:
       # Install icon and desktop file
       - install -Dm644 fontrapak.svg /app/share/icons/hicolor/scalable/apps/xyz.fontra.FontraPak.svg
       - install -Dm644 xyz.fontra.FontraPak.desktop /app/share/applications/xyz.fontra.FontraPak.desktop
+      - install -Dm644 xyz.fontra.FontraPak.appdata.xml /app/share/metainfo/xyz.fontra.FontraPak.appdata.xml
