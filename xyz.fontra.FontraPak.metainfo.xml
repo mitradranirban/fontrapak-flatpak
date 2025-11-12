@@ -3,7 +3,10 @@
   <id>xyz.fontra.FontraPak</id>
   <name>FontraPak</name>
   <summary>Standalone desktop build of the Fontra font editor</summary>
-  <developer_name>Fontra Project</developer_name>
+  <developer id="fontra.xyz">
+  <name>Fontra Project</name>
+  <url>https://fontra.xyz</url>
+  </developer>
   <description>
     <p>
       FontraPak is a cross-platform desktop application bundling the open-source, browser-based Fontra font editor. Fontra is developed by Black[Foundry] and Just van Rossum with support from Google Fonts.
@@ -15,15 +18,20 @@
   <url type="homepage">https://github.com/fontra/fontrapak</url>
   <categories>
     <category>Graphics</category>
-    <category>Utility</category>
-    <category>X-Fonts</category>
+    <category>Development</category> 
   </categories>
   <launchable type="desktop-id">xyz.fontra.FontraPak.desktop</launchable>
   <releases>
     <release version="2025.11.0" date="2025-11-03"/>
   </releases>
   <content_rating type="oars-1.1"/>
-  <translation type="gettext"/>
-  <project_license>GPL-3-or-LATER</project_license>
+  <screenshots>
+   <screenshot type="default">
+   <image>https://raw.githubusercontent.com/mitradranirban/flathub/refs/heads/my-app-submission/screenshot1.png</image>
+   <caption>FontraPak main interface</caption>
+   </screenshot>
+  </screenshots>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
 </component>
 

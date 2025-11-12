@@ -1,17 +1,16 @@
 id: xyz.fontra.FontraPak
 runtime: org.freedesktop.Platform
-runtime-version: '24.08'
+runtime-version: '25.08'
 sdk: org.freedesktop.Sdk
 command: fontrapak
 
 finish-args:
   - --share=ipc
   - --socket=x11
-  - --socket=wayland
-  - --socket=system-bus
   - --device=dri
   - --share=network
-  - --filesystem=host
+  - --filesystem=xdg-documents
+  - --filesystem=xdg-download
 
 modules:
   - name: fontrapak
@@ -19,32 +18,31 @@ modules:
     sources:
       - type: archive
         url: https://github.com/mitradranirban/fontra-pak-linux/releases/download/2025.11.0/fontrapak.tgz
-        sha256: eef66db8d1d090608023ddbe616316cac5ab5774ff65b8ed402cd156bb8f47e7
+        sha256: d8050249b6e7dc0d1a4fd484b1b232266afcf6254d7cd01f209cdfe94be4b929
       - type: file
-        path: data/icons/fontrapak.svg
-        dest-filename: fontrapak.svg
+        path: data/icons/xyz.fontra.FontraPak.svg
+        dest-filename: xyz.fontra.FontraPak.svg
       - type: file
         path: xyz.fontra.FontraPak.desktop
         dest-filename: xyz.fontra.FontraPak.desktop
+      - type: file
+        path: xyz.fontra.FontraPak.metainfo.xml
+        dest-filename: xyz.fontra.FontraPak.metainfo.xml
+      - type: file
+        path: fontrapak.sh
+
 
     build-commands:
       # Create bin directory
       - install -d /app/bin
       
-      # Extract tarball and install binary
-      - ls -la
-      - cp fontrapak /app/bin/fontrapak-bin
-      
-      # Clean up extracted directory first
-      - rm -rf fontrapak
-      
-      # Create wrapper script after cleanup
-      - |
-        echo '#!/bin/sh' > /app/bin/fontrapak
-        echo 'exec /app/bin/fontrapak-bin "$@"' >> /app/bin/fontrapak
-        chmod +x /app/bin/fontrapak
+      # move binary
+      - mv fontrapak /app/bin/fontrapak-bin
+
       
       # Install icon and desktop file
-      - install -Dm644 fontrapak.svg /app/share/icons/hicolor/scalable/apps/xyz.fontra.FontraPak.svg
+      - install -m755 fontrapak.sh /app/bin/fontrapak
+      - install -Dm644 xyz.fontra.FontraPak.svg /app/share/icons/hicolor/scalable/apps/xyz.fontra.FontraPak.svg
       - install -Dm644 xyz.fontra.FontraPak.desktop /app/share/applications/xyz.fontra.FontraPak.desktop
+      - install -Dm644 xyz.fontra.FontraPak.metainfo.xml /app/share/metainfo/xyz.fontra.FontraPak.metainfo.xml
      
