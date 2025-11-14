@@ -17,8 +17,8 @@ modules:
     buildsystem: simple
     sources:
       - type: archive
-        url: https://github.com/mitradranirban/fontra-pak-linux/releases/download/2025.11.0/fontrapak.tgz
-        sha256: d8050249b6e7dc0d1a4fd484b1b232266afcf6254d7cd01f209cdfe94be4b929
+        url: https://github.com/mitradranirban/fontra-pak-linux/releases/download/2025.11.1/fontrapak.tgz
+        sha256: 2df5bfaf0ee7639554c9c6b0f1bab0dff5ce532bfcc4dfadfb4a06b15fdbbcec
       - type: file
         path: data/icons/xyz.fontra.FontraPak.svg
         dest-filename: xyz.fontra.FontraPak.svg
@@ -40,7 +40,7 @@ modules:
       - mv fontrapak /app/bin/fontrapak-bin
 
       
-      # Install icon and desktop file
+      # Install wrapper script, icon, metainfo and desktop file 
       - install -m755 fontrapak.sh /app/bin/fontrapak
       - install -Dm644 xyz.fontra.FontraPak.svg /app/share/icons/hicolor/scalable/apps/xyz.fontra.FontraPak.svg
       - install -Dm644 xyz.fontra.FontraPak.desktop /app/share/applications/xyz.fontra.FontraPak.desktop
