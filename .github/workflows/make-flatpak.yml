@@ -44,15 +44,15 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
-          git tag -f 2025.11.1.4
+          git tag -f 2025.11.4
           git push --force origin 2025.11.4
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: 2025.11.1.4
-          name: Release 2025.11.1.4
+          tag_name: 2025.11.4
+          name: Release 2025.11.4
           body: |
-            Flatpak bundle for FontraPak version 2025.11.1
+            Flatpak bundle for FontraPak version 2025.11.4
             Built from upstream release.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
