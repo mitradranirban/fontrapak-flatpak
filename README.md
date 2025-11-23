@@ -28,4 +28,4 @@ To start fontrapak now, just go to your application menu and click the FontraPak
 Click on Documentation button o to know how to use fontra.
 
 <!--DOWNLOAD_COUNT-->
-**Total release downloads:** 59
+**Total release downloads:** 71
