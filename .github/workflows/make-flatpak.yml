@@ -27,7 +27,6 @@ jobs:
           name=$(printf '%s' "$json" | jq -r '.name')
           asset_url=$(printf '%s' "$json" | jq -r '.assets[] | select(.name=="fontrapak.tgz") | .browser_download_url')
           sha256=$(printf '%s' "$json" | jq -r '.assets[] | select(.name=="fontrapak.tgz") | .digest' | sed 's/^sha256://')
-
           {
             echo "version=$tag_name"
             echo "name=$name"
@@ -127,6 +126,10 @@ jobs:
           gh release view "$version" >/dev/null 2>&1 && \
             gh release edit "$version" --title "Release $version" --notes "Flatpak manifest updated from upstream release $version" || \
             gh release create "$version" --title "Release $version" --notes "Flatpak manifest updated from upstream release $version"
+      - name: Export version for downstream jobs
+        if: always()
+        run: |
+          echo "version=${{ steps.latest.outputs.version || 'manual' }}" >> "$GITHUB_OUTPUT"
 
   flatpak:
     name: Fontrapak
@@ -151,7 +154,7 @@ jobs:
           retention-days: 30
 
   release:
-    needs: [flatpak]
+    needs: [flatpak, check-and-bump]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -177,10 +180,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          # Use the latest tag if version not exported; gh will attach to provided tag
-          tag='${{ needs.check-and-bump.outputs.version || '' }}'
-          if [ -z "$tag" ]; then
-            tag=$(git describe --tags --abbrev=0)
-          fi
+          # Use latest tag or current commit SHA as fallback
+          tag=$(git tag -l --sort=-v:refname | head -n1 || echo "${{ github.sha }}")
+          echo "Attaching to: $tag"
           gh release upload "$tag" fontra-pak.flatpak --clobber
-
