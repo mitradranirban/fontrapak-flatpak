@@ -180,7 +180,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          # Use latest tag or current commit SHA as fallback
-          tag=$(git tag -l --sort=-v:refname | head -n1 || echo "${{ github.sha }}")
-          echo "Attaching to: $tag"
+          version="${{ needs.check-and-bump.outputs.version }}"
+          
+          if [ "$version" != "manual" ] && [ -n "$version" ]; then
+            # Use upstream version tag (created by check-and-bump if updated)
+            tag="$version"
+          else
+            # Fallback: create/use a manual tag for this build
+            tag="manual-$(date +%Y%m%d-%H%M%S)"
+            git tag "$tag"
+            git push origin "$tag"
+          fi
+          
+          echo "Attaching to tag: $tag"
           gh release upload "$tag" fontra-pak.flatpak --clobber
