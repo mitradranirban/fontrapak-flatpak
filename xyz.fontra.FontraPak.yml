@@ -17,8 +17,8 @@ modules:
     buildsystem: simple
     sources:
       - type: archive
-        url: https://github.com/mitradranirban/fontra-pak-linux/releases/download/2025.11.4.dev45%2Bgd3967807b/fontrapak.tgz
-        sha256: 0d1ec5e07c2c2cdcd42e41092441fcc180cb152331e257fe38a257171910e496
+        url: https://github.com/mitradranirban/fontra-pak-linux/releases/download/2025.12.0/fontrapak.tgz
+        sha256: a7fc0b11a34ceddf523d583c8e37f627ab5d010177de9d1fe7927667da78b0ae
       - type: file
         path: data/icons/xyz.fontra.FontraPak.svg
         dest-filename: xyz.fontra.FontraPak.svg
