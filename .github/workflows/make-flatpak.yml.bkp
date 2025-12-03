@@ -1,0 +1,64 @@
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+name: FlatPakBuild
+
+jobs:
+  flatpak:
+    name: "Fontrapak"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-24.08
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: fontra-pak.flatpak
+          manifest-path: xyz.fontra.FontraPak.yml
+          cache-key: flatpak-builder-${{ github.sha }}
+      - name: Upload Flatpak bundle as artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: fontra-pak-flatpak
+          path: fontra-pak.flatpak
+          retention-days: 30
+       # Add checksum generation right after artifact creation - ~line 32
+      - name: Generate SHA256 checksum file
+        run: sha256sum fontra-pak.flatpak > fontra-pak.flatpak.sha256
+
+
+  release:
+    name: "Release"
+    needs: flatpak
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Flatpak artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: fontra-pak-flatpak
+      - name: Create Git Tag
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions@github.com"
+          git tag -f 2025.11.4g
+          git push --force origin 2025.11.4g
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: 2025.11.4g
+          name: Release 2025.11.4g
+          body: |
+            Flatpak bundle for FontraPak version 2025.11.4
+            Built from upstream release.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Attach Flatpak bundle to release
+        run: gh release upload 2025.11.4g fontra-pak.flatpak --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Add checksum upload immediately after bundle upload - ~line 65
+      
