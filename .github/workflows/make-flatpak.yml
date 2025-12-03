@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      version: ${{ steps.export.outputs.version }}
     steps:
       - uses: actions/checkout@v6
 
@@ -126,10 +128,16 @@ jobs:
           gh release view "$version" >/dev/null 2>&1 && \
             gh release edit "$version" --title "Release $version" --notes "Flatpak manifest updated from upstream release $version" || \
             gh release create "$version" --title "Release $version" --notes "Flatpak manifest updated from upstream release $version"
+      
       - name: Export version for downstream jobs
+        id: export
         if: always()
         run: |
-          echo "version=${{ steps.latest.outputs.version || 'manual' }}" >> "$GITHUB_OUTPUT"
+          version="${{ steps.latest.outputs.version }}"
+          if [ -z "$version" ] || [ "$version" = "null" ]; then
+            version="manual"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
   flatpak:
     name: Fontrapak
@@ -158,24 +166,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      
       - name: Download Flatpak artifact
         uses: actions/download-artifact@v4
         with:
           name: fontra-pak-flatpak
-      - name: Create Git Tag
-        run: |
-          set -euo pipefail
-          # Tag is already created in check-and-bump when new release exists.
-          echo "No-op."
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.check-and-bump.outputs.version || 'manual' }}
-          name: Release ${{ needs.check-and-bump.outputs.version || 'manual' }}
-          body: Flatpak bundle for FontraPak built from upstream release.
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Attach Flatpak bundle to release
+      
+      - name: Determine tag and create release if needed
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -183,14 +180,32 @@ jobs:
           version="${{ needs.check-and-bump.outputs.version }}"
           
           if [ "$version" != "manual" ] && [ -n "$version" ]; then
-            # Use upstream version tag (created by check-and-bump if updated)
+            # Use upstream version tag (already created by check-and-bump)
             tag="$version"
+            echo "Using existing tag: $tag"
           else
-            # Fallback: create/use a manual tag for this build
+            # Create a manual tag for this build
             tag="manual-$(date +%Y%m%d-%H%M%S)"
+            echo "Creating manual tag: $tag"
+            
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
             git tag "$tag"
             git push origin "$tag"
+            
+            # Create release for manual tag
+            gh release create "$tag" \
+              --title "Release $tag" \
+              --notes "Flatpak bundle for FontraPak (manual build)"
           fi
           
-          echo "Attaching to tag: $tag"
-          gh release upload "$tag" fontra-pak.flatpak --clobber
+          # Save tag for next step
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+      
+      - name: Attach Flatpak bundle to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          echo "Attaching to tag: $TAG"
+          gh release upload "$TAG" fontra-pak.flatpak --clobber
