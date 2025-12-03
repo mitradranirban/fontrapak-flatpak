@@ -180,9 +180,19 @@ jobs:
           version="${{ needs.check-and-bump.outputs.version }}"
           
           if [ "$version" != "manual" ] && [ -n "$version" ]; then
-            # Use upstream version tag (already created by check-and-bump)
+            # Use upstream version tag
             tag="$version"
-            echo "Using existing tag: $tag"
+            echo "Using upstream version tag: $tag"
+            
+            # Ensure the release exists (create if it doesn't)
+            if ! gh release view "$tag" >/dev/null 2>&1; then
+              echo "Release not found, creating it..."
+              gh release create "$tag" \
+                --title "Release $tag" \
+                --notes "Flatpak bundle for FontraPak built from upstream release $tag"
+            else
+              echo "Release already exists"
+            fi
           else
             # Create a manual tag for this build
             tag="manual-$(date +%Y%m%d-%H%M%S)"
