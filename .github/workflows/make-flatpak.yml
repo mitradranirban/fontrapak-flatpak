@@ -20,9 +20,21 @@ jobs:
         id: latest
         run: |
           set -euo pipefail
+
           API="https://api.github.com/repos/mitradranirban/fontra-pak-linux/releases/latest"
           json="$(curl -fsSL -H 'Accept: application/vnd.github+json' "$API")"
-          echo "json=$json" >> "$GITHUB_OUTPUT"
+
+          tag_name=$(printf '%s' "$json" | jq -r '.tag_name')
+          name=$(printf '%s' "$json" | jq -r '.name')
+          asset_url=$(printf '%s' "$json" | jq -r '.assets[] | select(.name=="fontrapak.tgz") | .browser_download_url')
+          sha256=$(printf '%s' "$json" | jq -r '.assets[] | select(.name=="fontrapak.tgz") | .digest' | sed 's/^sha256://')
+
+          {
+            echo "tag_name=$tag_name"
+            echo "name=$name"
+            echo "asset_url=$asset_url"
+            echo "sha256=$sha256"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Extract upstream version and asset URL
         id: parse
