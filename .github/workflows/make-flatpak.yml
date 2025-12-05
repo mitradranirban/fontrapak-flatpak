@@ -79,6 +79,7 @@ jobs:
           set -euo pipefail
           sha256=$(sha256sum source.tgz | awk '{print $1}')
           echo "sha256=$sha256" >> "$GITHUB_OUTPUT"
+          rm source.tgz
 
       - name: Update manifest file
         if: steps.gate.outputs.update == 'true'
