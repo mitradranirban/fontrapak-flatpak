@@ -1,7 +1,7 @@
 # Fontra Pak Flatpak
 Note: This repository is going to deprecated in favour of official fontra flatpak repository 
 
-To install from the official flatpak source of fontra type the following command in your termunal
+To install from the official flatpak source of fontra type the following command in your terminal
 
 `flatpak install --from https://fontra.github.io/fontra-flatpak/xyz. fontra.FontraPak. flatpakref`
 
