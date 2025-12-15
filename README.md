@@ -3,7 +3,7 @@ Note: This repository is going to deprecated in favour of official fontra flatpa
 
 To install from the official flatpak source of fontra type the following command in your terminal
 
-`flatpak install --from https://fontra.github.io/fontra-flatpak/xyz. fontra.FontraPak. flatpakref`
+`flatpak install --from https://fontra.github.io/fontra-flatpak/xyz. fontra.FontraPak.flatpakref`
 
 
 Fontra Pak is a cross-platform, standalone, bundled [Fontra](https://github.com/fontra/fontra) application for desktop use.
